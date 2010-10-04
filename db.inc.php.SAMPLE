@@ -1,0 +1,10 @@
+<?php
+/**
+ * Connection settings for MySQL
+ *
+ * @author Andrew Larcombe
+ */
+$host = '127.0.0.1';
+$database = 'YOUR_DATABASE_NAME';
+$username = 'YOUR_USERNAME';
+$password = 'YOUR_PASSWORD';

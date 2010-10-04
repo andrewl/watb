@@ -1,0 +1,17 @@
+Where Are The Bikes?
+
+This is an initial stab at building a general purpose, lightweight framework for gathering and searching docking stations for bicycle hire schemes. Rather than duplicate code for each scheme around the world this can be used to easily extend to any new schemes that come online. 
+
+Not much documentation for now, lots of stuff needs tidying/fixing, and error handling leaves a lot to be desired, but here's the basic outline:
+- create a MySQL database using watb.sql
+- rename db.inc.php.SAMPLE to db.inc.php and edit your MySQL connection settings
+- set up an Apache Virtual Host with the document root pointing at the www directory
+- from the feeder directory run feeder.php - it should populate your database with information from the London Bike Hire scheme.
+- go to index.php/51.3/0.1/5 - you should see a json representation of the 5 nearest docking stations to 0.1W,51.3N.
+
+To get data from a new scheme into the database all you need to do is create a new file <MYSCHEME>.class.php in the schemes directory which should contain a class extending BikeHireFeeder and implementing the update() method. This should just do whatever it needs to do to get the data for the scheme, create a new Station object for each docking station and call the Station::close() method. See london.class.php for an example/template.
+
+
+
+
+
