@@ -10,6 +10,7 @@ class London extends BikeHireFeeder
   
   /**
    * Implementation of abstraction function BikeHireFeeder::update()
+   * RegEx shamelessy stolen from http://github.com/adrianshort/borisapi
    *
    * @return void
    * @author Andrew Larcombe
