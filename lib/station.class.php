@@ -117,7 +117,7 @@ class Station
    * @author Andrew Larcombe
    */
   static function load(PDO $dbh, $scheme, $id) {
-    $sql = "select * from stations where scheme = " . $dbh->quote($scheme) . " and id = " . $dbh->quote($id);
+    $sql = "select *, X(location) as longitude, Y(location) as latitude from stations where scheme = " . $dbh->quote($scheme) . " and id = " . $dbh->quote($id);
     $res = $dbh->query($sql);
         
     if($res->rowCount() != 1) {
@@ -128,10 +128,13 @@ class Station
     $station = new Station($dbh);
     $station->id = $row['id'];
     $station->scheme = $row['scheme'];    
+    $station->longitude = $row['longitude'];
+    $station->latitude = $row['latitude'];
     $station->name = $row['name'];
     $station->bikes = $row['bikes'];
     $station->stands = $row['stands'];
     $station->extra = unserialize($row['extra']);
+    $station->updated = $row['updated'];
     
     return $station;
     
@@ -149,7 +152,16 @@ class Station
    */
   static function find_nearest(PDO $dbh, $longitude, $latitude, $count = 1) {
     
-    $sql = "select scheme, id, glength(linestringfromwkb(linestring(GeomFromText('POINT({$longitude} {$latitude})'), stations.location))) as dist from stations order by dist asc limit {$count}";
+    $sql = "select scheme, id,
+                            acos( 
+                            cos(radians( Y(location) ))
+                            * cos(radians( {$latitude} ))
+                            * cos(radians( X(location) ) - radians( {$longitude} ))
+                            + sin(radians( Y(location) )) 
+                            * sin(radians( {$latitude} ))
+                            ) * 6371000 AS dist 
+          from stations order by dist asc limit {$count}";
+                  
     $res = $dbh->query($sql);
     
     $stations = array();

@@ -14,8 +14,8 @@ if(!$dbh) {
 
 $params = split('/', $_SERVER['PATH_INFO']);
 
-$lat = (float)$params[2];
 $lon = (float)$params[1];
+$lat = (float)$params[2];
 $count = (int)$params[3];
 
 require_once('../lib/station.class.php');
