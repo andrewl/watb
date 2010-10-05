@@ -10,8 +10,7 @@
  */
 
 
-
-require_once('../db.inc.php');
+require_once(dirname(__FILE__) . '/../db.inc.php');
 $dbh = new PDO("mysql:host=$host;dbname=$database", $username, $password);
 if(!$dbh) {
   print "Failed to connect to database\n";  
@@ -19,7 +18,7 @@ if(!$dbh) {
 }
 
 
-foreach(glob('../schemes/*.class.php') as $idx => $filename) {
+foreach(glob(dirname(__FILE__) . '/../schemes/*.class.php') as $idx => $filename) {
   print "Loading {$filename}\n";
   require_once($filename);
 }

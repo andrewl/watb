@@ -1,6 +1,6 @@
 <?php
 
-require_once('../lib/bikehirefeeder.class.php');
+require_once(dirname(__FILE__) .'/../lib/bikehirefeeder.class.php');
 
 /**
 * Class to processing data from the Paris Velib Scheme
