@@ -14,16 +14,19 @@
 require_once('../db.inc.php');
 $dbh = new PDO("mysql:host=$host;dbname=$database", $username, $password);
 if(!$dbh) {
+  print "Failed to connect to database\n";  
   return FALSE;
 }
 
 
 foreach(glob('../schemes/*.class.php') as $idx => $filename) {
+  print "Loading {$filename}\n";
   require_once($filename);
 }
 
 foreach(get_declared_classes() as $idx => $classname) {
   if(get_parent_class($classname) == 'BikeHireFeeder') {
+    print "Processing $classname\n";  
     $feeder = new $classname($dbh);
     $feeder->update();
   }

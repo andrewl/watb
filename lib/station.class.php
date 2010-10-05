@@ -84,7 +84,7 @@ class Station
     if($this->_dbh->exec($sql) === 0) {
       
       //attempt the insert
-      $sql = "INSERT INTO STATIONS (scheme, id, name, bikes, stands, extra, location, updated) VALUES (" . $this->_dbh->quote($this->scheme) . ", " .
+      $sql = "INSERT INTO stations (scheme, id, name, bikes, stands, extra, location, updated) VALUES (" . $this->_dbh->quote($this->scheme) . ", " .
                                             $this->_dbh->quote($this->id) . ", " .
                                             $this->_dbh->quote($this->name) . ", " .
                                             $this->_dbh->quote($this->bikes) . ", " .

@@ -32,7 +32,7 @@ abstract class BikeHireFeeder
    * @author Andrew Larcombe
    */
   function load($url) {
-    $cache_file = $this->cache_dir . "/" . md5($url) . "_" . get_class() . '.feed_cache';
+    $cache_file = $this->cache_dir . "/" . md5($url) . "_" . get_class($this) . '.feed_cache';
 
     if(!file_exists($cache_file) || (filemtime($cache_file) + $cache_max_time) > time()) { 
       $contents = file_get_contents($url);
