@@ -150,7 +150,21 @@ class Station
    * @return void
    * @author Andrew Larcombe
    */
-  static function find_nearest(PDO $dbh, $longitude, $latitude, $count = 1) {
+  static function find_nearest(PDO $dbh, $longitude, $latitude, $count = 1, $filter = 0) {
+    
+    switch ($filter) {
+      case 2:
+        $filter_clause = ' AND stands > 0';
+        break;
+
+      case 1:
+        $filter_clause = ' AND bikes > 0';
+        break;
+      
+      default:
+        $filter_clause = '';
+        break;
+    }
     
     $sql = "select scheme, id,
                             acos( 
@@ -160,7 +174,7 @@ class Station
                             + sin(radians( Y(location) )) 
                             * sin(radians( {$latitude} ))
                             ) * 6371000 AS dist 
-          from stations order by dist asc limit {$count}";
+          from stations WHERE 1=1 {$filter_clause} order by dist asc limit {$count}";
                   
     $res = $dbh->query($sql);
     

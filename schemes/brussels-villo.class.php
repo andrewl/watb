@@ -5,7 +5,7 @@ require_once(dirname(__FILE__) .'/../lib/bikehirefeeder.class.php');
 /**
 * Class to processing data from the Paris Velib Scheme
 */
-class Dublin extends BikeHireFeeder
+class Brussels extends BikeHireFeeder
 {
   
   /**
@@ -15,7 +15,7 @@ class Dublin extends BikeHireFeeder
    * @author Andrew Larcombe
    */
   static function name() {
-    return 'dublin-bikes';
+    return 'brussels-villo';
   }
   
   /**
@@ -25,7 +25,7 @@ class Dublin extends BikeHireFeeder
    * @author Andrew Larcombe
    */
   static function description() {
-    return "DublinBikes";
+    return "Brussels Villo";
   }
   
   
@@ -38,7 +38,7 @@ class Dublin extends BikeHireFeeder
    */
   function update() {
     
-    $contents = $this->load("http://www.dublinbikes.ie/service/carto");
+    $contents = $this->load("http://en.villo.be/service/carto");
     
     if(!$contents) {
       return FALSE;
@@ -50,7 +50,7 @@ class Dublin extends BikeHireFeeder
     
     foreach ($markers as $marker) {
       
-      $station_contents = $this->load("http://www.dublinbikes.ie/service/stationdetails/" . $marker->getAttribute('number'));
+      $station_contents = $this->load("http://en.villo.be/service/stationdetails/" . $marker->getAttribute('number'));
       
       if(!$station_contents) {
         continue;

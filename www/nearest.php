@@ -1,4 +1,5 @@
 <?php
+//deprecated now
 if(!isset($_SERVER['PATH_INFO'])) {
   print json_encode("PATH_INFO not set");
 }

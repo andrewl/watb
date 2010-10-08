@@ -5,8 +5,9 @@ require_once(dirname(__FILE__) . '/../lib/bikehirefeeder.class.php');
 /**
 * Class to processing data from the London Bike Hire Scheme
 */
-class London extends BikeHireFeeder
+class Denver extends BikeHireFeeder
 {
+  
   /**
    * Implementation of abstract function BikeHireFeeder::name()
    *
@@ -14,7 +15,7 @@ class London extends BikeHireFeeder
    * @author Andrew Larcombe
    */
   static function name() {
-    return 'london-barclays-tfl';
+    return 'denver-bcycle';
   }
   
   /**
@@ -24,7 +25,7 @@ class London extends BikeHireFeeder
    * @author Andrew Larcombe
    */
   static function description() {
-    return "TfL Barclays London Cycle Hire";
+    return "Denver Bcycle";
   }
   
   
@@ -38,27 +39,29 @@ class London extends BikeHireFeeder
    */
   function update() {
     
-    $contents = $this->load("http://web.barclayscyclehire.tfl.gov.uk/maps");
+    $contents = $this->load("http://denver.bcycle.com/");
     
     if(!$contents) {
       return FALSE;
     }
     
-    $regex = '/\{id:"(\d+)".+?name:"(.+?)".+?lat:"(.+?)".+?long:"(.+?)".+?nbBikes:"(\d+)".+?nbEmptyDocks:"(\d+)".+?installed:"(.+?)".+?locked:"(.+?)".+?temporary:"(.+?)"\}/';  
-
-    $matches[1][1] = 0;
+    if(!preg_match('!function LoadKiosks!', $contents, $matches, PREG_OFFSET_CAPTURE, 0)) {
+      return FALSE;
+    }
+    
+    $regex = "!var point = new google.maps.LatLng\((.+?), (.+?)\);.*?createMarker\(point, \"<div class='location'><strong>(.+?)</strong><br />(.+?)</div><div class='avail'>Bikes available: <strong>(\d+)</strong><br />Docks available: <strong>(\d+)</strong></div><br/>!s";
+    
+    $matches[1][1] = $matches[0][1];
     while(preg_match($regex, $contents, $matches, PREG_OFFSET_CAPTURE, $matches[1][1])) {
+            
       $station = new Station($this->dbh);  
       $station->scheme = $this::name();
-      $station->id = $matches[1][0];
-      $station->name = $matches[2][0];
-      $station->latitude = $matches[3][0];
-      $station->longitude = $matches[4][0];
+      $station->id = $matches[3][0];
+      $station->name = $matches[4][0];
+      $station->latitude = $matches[2][0];
+      $station->longitude = $matches[1][0];
       $station->bikes = $matches[5][0];
       $station->stands = $matches[6][0];
-      $station->installed = $matches[7][0];
-      $station->locked = $matches[8][0];
-      $station->temporary = $matches[9][0];
       $station->save();
     }
     

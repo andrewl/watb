@@ -17,17 +17,16 @@ if(!$dbh) {
   return FALSE;
 }
 
+require_once(dirname(__FILE__) . '/../lib/bikehirefeeder.class.php');
 
-foreach(glob(dirname(__FILE__) . '/../schemes/*.class.php') as $idx => $filename) {
-  print "Loading {$filename}\n";
-  require_once($filename);
-}
-
-foreach(get_declared_classes() as $idx => $classname) {
-  if(get_parent_class($classname) == 'BikeHireFeeder') {
-    print "Processing $classname\n";  
-    $feeder = new $classname($dbh);
-    $feeder->update();
+foreach(BikeHireFeeder::get_scheme_names() as $scheme_name => $scheme_description) {
+  $scheme = BikeHireFeeder::get_scheme($scheme_name, $dbh);
+  if($scheme) {
+    print "Processing {$scheme_name} ({$scheme_description})\n";  
+    $scheme->update();
+  }
+  else {
+    print "Failed to load {$scheme_name}\n";
   }
 }
 
