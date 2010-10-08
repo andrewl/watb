@@ -65,7 +65,7 @@ class Velib extends BikeHireFeeder
       $available = $station_dom->getElementsByTagName('available');
             
       $station = new Station($this->dbh);  
-      $station->scheme = $this::name();
+      $station->scheme = call_user_func(array($this,'name'));
       $station->id = $marker->getAttribute('number');
       $station->name = $marker->getAttribute('name');
       $station->latitude = $marker->getAttribute('lat');

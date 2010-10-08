@@ -49,7 +49,7 @@ class London extends BikeHireFeeder
     $matches[1][1] = 0;
     while(preg_match($regex, $contents, $matches, PREG_OFFSET_CAPTURE, $matches[1][1])) {
       $station = new Station($this->dbh);  
-      $station->scheme = $this::name();
+      $station->scheme = call_user_func(array($this,'name'));
       $station->id = $matches[1][0];
       $station->name = $matches[2][0];
       $station->latitude = $matches[3][0];

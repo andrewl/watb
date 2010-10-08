@@ -50,7 +50,7 @@ class BixiMontreal extends BikeHireFeeder
     foreach ($stations as $station_node) {
 
       $station = new Station($this->dbh);  
-      $station->scheme = $this::name();
+      $station->scheme = call_user_func(array($this,'name'));
       $station->id = $station_node->getElementsByTagName('id')->item(0)->nodeValue;
       $station->name = $station_node->getElementsByTagName('name')->item(0)->nodeValue;
       $station->latitude = $station_node->getElementsByTagName('lat')->item(0)->nodeValue;

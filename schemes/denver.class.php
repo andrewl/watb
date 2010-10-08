@@ -55,7 +55,7 @@ class Denver extends BikeHireFeeder
     while(preg_match($regex, $contents, $matches, PREG_OFFSET_CAPTURE, $matches[1][1])) {
             
       $station = new Station($this->dbh);  
-      $station->scheme = $this::name();
+      $station->scheme = call_user_func(array($this,'name'));
       $station->id = $matches[3][0];
       $station->name = $matches[4][0];
       $station->latitude = $matches[2][0];
