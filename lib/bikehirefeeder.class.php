@@ -83,7 +83,7 @@ abstract class BikeHireFeeder
 
     foreach(get_declared_classes() as $idx => $classname) {
       if(get_parent_class($classname) == 'BikeHireFeeder') {
-        if($classname::name() == $name) {
+        if(call_user_func(array($classname,'name')) == $name) {
           $obj = new $classname($dbh);
           return $obj;
         }
@@ -111,7 +111,7 @@ abstract class BikeHireFeeder
 
     foreach(get_declared_classes() as $idx => $classname) {
       if(get_parent_class($classname) == 'BikeHireFeeder') {
-        $scheme_names[$classname::name()] = $classname::description();
+        $scheme_names[call_user_func(array($classname,'name'))] = call_user_func(array($classname,'description'));
       }
     }
     
