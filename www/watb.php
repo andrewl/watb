@@ -1,5 +1,6 @@
 <?php
-require_once('../lib/station.class.php');
+require_once(dirname(__FILE__) . '/../lib/bikehirefeeder.class.php');
+require_once(dirname(__FILE__) . '/../lib/station.class.php');
 
 if(!isset($_SERVER['PATH_INFO'])) {
   print json_encode("PATH_INFO not set");
@@ -7,19 +8,32 @@ if(!isset($_SERVER['PATH_INFO'])) {
 
 $args = get_args();
 
-//the main controller
-switch($args[1]) {
-  
-  case 'nearest':
-  default:
-    $fn = 'nearest';
+//the router
+$path = $_SERVER['PATH_INFO'];
+$fn = NULL;
+if(preg_match('!scheme/.*?/stations/.+?$!', $path)) {
+  $fn = 'scheme_station';
 }
-
-if(function_exists($fn)) {
-  $data = $fn();
+else if(preg_match('!scheme/.+?/stations$!', $path)) {
+  $fn = 'scheme_stations';
+}
+else if(preg_match('!scheme/.+?!', $path)) {
+  $fn = 'scheme';
+}
+else if(preg_match('!scheme$!', $path)) {
+  $fn = 'schemes';
 }
 else {
-  $data['error'] = "Function {$fn} does not exist";
+  $data['error'] = "Failed to understand endpoint";
+}
+
+if($fn) {
+  if(function_exists($fn)) {
+    $data = $fn();
+  }
+  else {
+    $data['error'] = "Function {$fn} does not exist";
+  }
 }
 
 output($data);
@@ -30,30 +44,81 @@ exit;
  * The Actions
  */
 
-
-/**
- * nearest/LON/LAT/COUNT/FILTER
- * LON - longitude
- * LAT - latitude
- * COUNT - max number of results to return
- * FILTER - 0 all stations, 1 only stations with bikes, 2 only stations with stands
- *
- * @return void
- * @author Andrew Larcombe
- */
-function nearest() {
+//return all scheme names and descriptions
+function schemes() {
   
-  $dbh = get_dbh();
-  $args = get_args();
-  
-  $lon = (float)$args[2];
-  $lat = (float)$args[3];
-  $count = (int)$args[4];
-  $filter = isset($args[5]) ? (int)$args[5] : 0;
-
-  return Station::find_nearest($dbh, $lon, $lat, $count, $filter);
+  return BikeHireFeeder::get_scheme_names();
 
 }
+
+
+//return info about a scheme
+function scheme() {
+  
+  $args = get_args();
+  $dbh = get_dbh();
+  
+  $scheme_name = $args[2];
+  $scheme = BikeHireFeeder::get_scheme($scheme_name, $dbh);
+  
+  if(!$scheme) {
+    return "Failed to get scheme with name '{$scheme_name}'";
+  }
+
+  return $scheme->get_info();
+  
+}
+
+function scheme_stations() {
+  
+  $args = get_args();
+  $params = array();
+  
+  if($args[2] != 'all') {
+    $params['scheme'] = $args[2];
+  }
+  
+  foreach($_GET as $name => $value) {
+    
+    switch ($name) {
+      case 'filter':
+        $params['filter'] = (int)$value;
+        break;
+
+      case 'count':
+        $params['count'] = (int)$value;
+        break;
+
+      case 'page':
+        $params['page'] = (int)$value;
+        break;
+
+      case 'bbox':
+        $params['bbox'] = $value;
+        break;
+
+      case 'nearest':
+        $params['nearest'] = $value;
+        break;
+
+      case 'max_dist':
+        $params['max_dist'] = $value;
+        break;
+      
+      default:
+        //ignore, discard
+        break;
+    }
+    
+  }
+  
+  
+  $dbh = get_dbh();  
+  return Station::find($dbh, $params);  
+  
+}
+
+
 
 
 /**
@@ -106,9 +171,6 @@ function get_args($remove_extension = TRUE) {
 function get_dbh() {
   require_once('../db.inc.php');
   return new PDO("mysql:host=$host;dbname=$database", $username, $password);
-  // if(!$dbh) {
-  //   print json_encode("Failed to connect to database");
-  // }
   return $dbh;
 }
 

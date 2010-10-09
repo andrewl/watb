@@ -141,7 +141,102 @@ class Station
   }
   
   /**
-   * Locate the nearest $count stations from this latitude, longitude
+   * Return stations from cycle hire schemes
+   *
+   * @param PDO $dbh 
+   * @param string $params
+   * An array of params used to limit the number of stations returned
+   * filter = 2 (only stations with empty stands) or 1 (only stations with bikes available)
+   * TODO: bbox = x0,y0,x1,y1 (only stations within these bounds)
+   * nearest = x0,y0 (order by distance from x0, y0)
+   * max_dist = max distance in metres from nearest
+   * count = number of stations to return
+   * TODO: page = used in conjunction with count. Returns n'th page of count results
+   * scheme = limit to those bikes in a particular scheme
+   * @return void
+   * @author Andrew Larcombe
+   */
+  static function find(PDO $dbh, $params) {
+
+    $where_clauses = array('1=1');
+    $fields = array('scheme','id');
+    $orders = array();
+    $limits = "";
+    
+    foreach($params as $key => $value) {
+      switch ($key) {
+        case 'scheme':
+          $where_clauses[] = 'scheme = ' . $dbh->quote($value);
+        case 'filter':
+          if($value == 2) {
+            $where_clauses[] = 'stands > 0';
+          }
+          else if($value == 1) {
+            $where_clauses[] = 'bikes > 0';
+           }
+          break;
+
+        case 'bbox':
+          //not yet implemented
+          break;
+
+        default:
+          //ignore, discard
+          break;
+      }
+    }
+    
+    if(isset($params['nearest'])) {
+      list($longitude, $latitude) = split(',' , $params['nearest']); 
+      $fields[] = "acos(cos(radians( Y(location) ))
+        * cos(radians( {$latitude} ))
+        * cos(radians( X(location) ) - radians( {$longitude} ))
+        + sin(radians( Y(location) )) 
+        * sin(radians( {$latitude} ))
+        ) * 6371000 AS dist";
+        
+      $orders[] = 'dist asc';
+      
+      if(isset($params['max_dist'])) {
+        $where_clauses[] = 'dist < ' . (float)$params['max_dist'];
+      }
+      
+    }
+    
+    if(isset($params['count'])) {
+      if(isset($params['page'])) {
+      }
+      else {
+        $limits = 'LIMIT ' . abs((int)$params['count']);
+      }
+    }
+    
+    $sql = "SELECT " . join(',',$fields) . " FROM stations WHERE " . join(' AND ',$where_clauses);
+    if(count($orders)) {
+      $sql .=  " order by " . (join(',',$orders));
+    }
+    $sql .= " " . $limits;
+
+    if(!$res = $dbh->query($sql)) {
+      return "Failed to run sql '{$sql}'";
+    }
+    
+    $stations = array();
+    while($row = $res->fetch()) {
+      $station = Station::load($dbh, $row['scheme'], $row['id']);
+      if(isset($row['dist'])) {
+        $station->distance = $row['dist'];
+      }
+      unset($station->_dbh);
+      $stations[] = $station;
+    }
+    
+    return $stations;
+    
+  }
+  
+  /**
+   * Locate the nearest $count stations from this latitude, longitude. Deprecated
    *
    * @param PDO $dbh 
    * @param float $longitude 

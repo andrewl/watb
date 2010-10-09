@@ -4,6 +4,36 @@
   <script src="js/jquery-1.4.2.min.js"></script>
   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>  
   <script>
+  function list_all() {
+    url = '/watb.php/scheme';
+    jQuery.getJSON('/watb.php/scheme', function(json) {
+      $('#results').html('<pre>API call: ' + url + '</pre>');
+      jQuery.each(json, function(id, scheme) {
+        $('#results').append('<p>' + id + ' (' + scheme + ')</p>' );
+      });
+    });
+  }
+
+  function list_denver() {
+    url = '/watb.php/scheme/denver-bcycle/stations';
+    jQuery.getJSON('/watb.php/scheme/denver-bcycle/stations', function(json) {
+      $('#results').html('<pre>API call: ' + url + '</pre>');
+      jQuery.each(json, function(idx, station) {
+        $('#results').append('<p><strong>' + (idx+1) + " " + station.name + '</strong><br/>Available Bikes: ' + station.bikes + '<br/>Free Stands: ' + station.stands + '<br/><small>Updated:' + station.extra.updated + '</small></p>');
+      });
+    });
+  }
+
+  function list_seville_free() {
+    url = '/watb.php/scheme/seville-sevici/stations?filter=2';
+    jQuery.getJSON(url, function(json) {
+      $('#results').html('<pre>API call: ' + url + '</pre>');
+      jQuery.each(json, function(idx, station) {
+        $('#results').append('<p><strong>' + (idx+1) + " " + station.name + '</strong><br/>Available Bikes: ' + station.bikes + '<br/>Free Stands: ' + station.stands + '<br/><small>Updated:' + station.extra.updated + '</small></p>');
+      });
+    });
+  }
+  
   function show_nearest_from_address() {
     
     geocoder = new google.maps.Geocoder();
@@ -24,11 +54,11 @@
   }
   
   function show_nearest_docking_stations(longitude, latitude) {
-    
-      jQuery.getJSON('/watb.php/nearest/' + longitude + '/' +  latitude + '/5/' + $("input[@name='filter']:checked").val(), function(json) {
-        $('#json').html('<pre>' + json + '</pre>');
+      url = '/watb.php/scheme/all/stations?nearest=' + longitude + ',' + latitude + '&count=5&filter=' + $("input[@name='filter']:checked").val();
+      jQuery.getJSON(url, function(json) {
+        $('#results').html('<pre>API call: ' + url + '</pre>');
+        $('#results').append('<p style="float: left" id="stations"></p>');
         mapurl = "http://maps.google.com/maps/api/staticmap?size=512x512&maptype=roadmap&sensor=false&";
-        $('div#stations').html('');
         first = true;
         jQuery.each(json, function(idx, station) {
           if(first && station.extra.distance < 1000) {
@@ -36,9 +66,10 @@
             mapurl += "markers=color:red|label:X|"+latitude+","+longitude+"&";
           }
           first = false;
-          $('div#stations').append('<p><strong>' + (idx+1) + " " + station.name + '</strong><br/>Available Bikes: ' + station.bikes + '<br/>Free Stands: ' + station.stands + '<br/><small>Distance:' + parseInt(station.extra.distance) + ' metres<br/>Updated:' + station.extra.updated + '</small></p>');
+          $('#stations').append('<p><strong>' + (idx+1) + " " + station.name + '</strong><br/>Available Bikes: ' + station.bikes + '<br/>Free Stands: ' + station.stands + '<br/><small>Distance:' + parseInt(station.extra.distance) + ' metres<br/>Updated:' + station.extra.updated + '</small></p>');
           mapurl += "markers=color:blue|label:"+(idx+1)+"|"+station.latitude+","+station.longitude+"&";
         });
+        $('#results').append('<img id="map"></div>');
         $('#map').attr('src', mapurl);
       });
   }
@@ -51,25 +82,27 @@
 </head>
 <body>
 <div>
-<p>A very simple frontend to the <a href="http://github.com/andrewl/watb">Where Are The Bikes API</a></p>
-<p>Enter an address to display nearby docking stations.<br/>
+<p>A very simple frontend to a few of the functions exposed by the <a href="http://github.com/andrewl/watb">Where Are The Bikes API</a><br/><strong>NB</strong> This is just for demonstration purposes. The bike station data is only updated on an hourly basis. Get the source at <a href="http://github.com/andrewl/watb">http://github.com/andrewl/watb</a> to run it on your own server.</p>
+<p><strong>a) List all schemes:</strong> <button onclick="list_all()">Go!</button><br/>
+<strong>b) List all stations in the Denver Bcycle scheme:</strong> <button onclick="list_denver()">Go!</button><br/>
+<strong>c) List all stations with free stands in the Seville Sevici scheme:</strong> <button onclick="list_seville_free()">Go!</button><br/>
+<strong>d) Proximity Search:</strong> Enter an address to display nearby docking stations.<br/>
 Should be good for locations in Dublin, London, Paris, Brussels, Montreal, Denver and Seville.<br/>
-<strong>NB</strong> Just for demonstration purposes. The bike station data is only updated on an hourly basis. Get the source at <a href="http://github.com/andrewl/watb">http://github.com/andrewl/watb</a> to run it on your own server.<br/>
 <input type="text" size="80" id="address"></input><br/>
 <button onclick="show_nearest_from_address();">Search near this address</button>
 OR
 <button onclick="show_nearest_from_geolocation();">Attempt to search near your current location (can be flaky)</button><br/>
-<input type="radio" id="filter" name="filter" value="0" />All Stations<br />
-<input type="radio" id="filter" name="filter" value="1" />Only Stations With Bikes<br />
-<input type="radio" id="filter" name="filter" value="2" />Only Stations With Free Stands<br />
+<input onclick="show_nearest_from_address();" checked type="radio" id="filter" name="filter" value="0" />All Stations<br />
+<input onclick="show_nearest_from_address();" type="radio" id="filter" name="filter" value="1" />Only Stations With Bikes<br />
+<input onclick="show_nearest_from_address();" type="radio" id="filter" name="filter" value="2" />Only Stations With Free Stands<br />
 </p>
+
 <div>
-
-<div style="float: left;" id="stations">  
+<strong>Results</strong>
+<div id="results">
+</div>
 </div>
 
-<img id="map">
-</div>
 
 </body>
 </html>

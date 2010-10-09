@@ -119,4 +119,23 @@ abstract class BikeHireFeeder
     
   }
   
+
+  function get_info() {
+    
+    $sql = "select count(*) as cnt, max(updated) as upd, scheme from stations where scheme = ". $this->dbh->quote(call_user_func(array($this,'name')))." group by scheme";
+    $res = $this->dbh->query($sql);
+    
+    if(!$res) {
+      return "Failed to run query '$sql'";
+    }
+    
+    $row = $res->fetch();
+    
+    return array('id' => call_user_func(array($this,'name')),
+                  'description' => call_user_func(array($this,'description')),
+                  'stations' => $row['cnt'],
+                  'updated' => $row['upd']);
+    
+  }
+  
 }
