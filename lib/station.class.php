@@ -168,7 +168,13 @@ class Station
         case 'scheme':
           $where_clauses[] = 'scheme = ' . $dbh->quote($value);
         case 'filter':
-          if($value == 2) {
+          if($value == 4) {
+            $where_clauses[] = 'stands = 0';
+          }
+          else if($value == 3) {
+            $where_clauses[] = 'bikes = 0';
+           }
+          else if($value == 2) {
             $where_clauses[] = 'stands > 0';
           }
           else if($value == 1) {

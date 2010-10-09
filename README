@@ -29,7 +29,7 @@ API CALLS
 
 /scheme/id/stations - returns information about all stations in scheme id. Set scheme id to 'all' for all stations. Takes the following query options to limit the number of statons
 * An array of params used to limit the number of stations returned
-* filter = 2 (only stations with empty stands) or 1 (only stations with bikes available)
+* filter = 4 (only stations with no free stands) 3 (only stations with no bikes) 2 (only stations with empty stands) or 1 (only stations with bikes available)
 * TODO: bbox = x0,y0,x1,y1 (only stations within these bounds)
 * nearest = x0,y0 (order by distance from x0, y0)
 * max_dist = max distance in metres from nearest
