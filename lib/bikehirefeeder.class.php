@@ -8,12 +8,14 @@ include(dirname(__FILE__) .'/../lib/station.class.php');
 */
 abstract class BikeHireFeeder
 {
-  var $cache_dir = '/tmp';
-  var $cache_max_time = 300;
   var $dbh = NULL;
+  var $config = array();
     
   function __construct(PDO $dbh) {
     $this->dbh = $dbh;
+    $config = parse_ini_file(dirname(__FILE__).'/../conf/watb.ini', TRUE);
+    $this->config = array_merge( (isset($config[$this->name()]) ? $config[$this->name()] : array()),
+                         (isset($config['defaults']) ? $config['defaults'] : array()));
   }
 
   /**
@@ -49,9 +51,13 @@ abstract class BikeHireFeeder
    * @author Andrew Larcombe
    */
   function load($url) {
-    $cache_file = $this->cache_dir . "/" . md5($url) . "_" . get_class($this) . '.feed_cache';
     
-    if(!file_exists($cache_file) || (filemtime($cache_file) + $this->cache_max_time) < time()) { 
+    $cache_max_age = isset($this->config['cache_max_age']) ? $this->config['cache_max_age'] : 300;
+    $cache_dir = isset($this->config['cache_dir']) ? $this->config['cache_dir'] : '/tmp';
+    
+    $cache_file = $cache_dir . "/" . md5($url) . '.feed_cache';
+    
+    if(!file_exists($cache_file) || (filemtime($cache_file) + $cache_max_time) < time()) { 
       if(($contents = file_get_contents($url)) !== FALSE) {
         file_put_contents($cache_file, $contents);
       }
@@ -64,6 +70,7 @@ abstract class BikeHireFeeder
     }
     
     return $contents;
+    
   }
 
   /**

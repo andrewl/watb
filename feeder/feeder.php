@@ -19,6 +19,7 @@ if(!$dbh) {
 
 require_once(dirname(__FILE__) . '/../lib/bikehirefeeder.class.php');
 
+
 foreach(BikeHireFeeder::get_scheme_names() as $scheme_name => $scheme_description) {
   $scheme = BikeHireFeeder::get_scheme($scheme_name, $dbh);
   if($scheme) {

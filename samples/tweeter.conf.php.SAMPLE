@@ -1,0 +1,32 @@
+<?php
+/**
+ * URI of the watb endpoint
+ */
+$watb_api_endpoint = "http://watb.local/watb.php";
+
+/**
+ * Scheme to limit station search to
+ */
+$scheme = 'london-barclays-tfl';
+
+/**
+ * Stations we're interested in
+ */
+$stations = '334,336';
+
+/**
+ * File containing the previous state of the stations
+ */
+$previous_state_file = "/tmp/tweeter_london-barclays-tfl_334_336";
+
+
+/**
+ * Twitter consumer key, secret, access token and secret
+ * You'll need to register your own application, grant an account access and generate the keys 
+ * http://nullinfo.wordpress.com/oauth-twitter/ provides a good step-by-step guide
+ */
+define('OAUTH_CONSUMER_KEY', '----------');
+define('OAUTH_CONSUMER_SECRET', '-----------');
+$access_token='------------';
+$access_token_secret='---------';
+

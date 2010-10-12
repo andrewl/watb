@@ -11,7 +11,7 @@ $args = get_args();
 //the router
 $path = $_SERVER['PATH_INFO'];
 $fn = NULL;
-if(preg_match('!scheme/.*?/stations/.+?$!', $path)) {
+if(preg_match('!scheme/.+?/stations/.+?!', $path)) {
   $fn = 'scheme_station';
 }
 else if(preg_match('!scheme/.+?/stations$!', $path)) {
@@ -118,7 +118,33 @@ function scheme_stations() {
   
 }
 
+function scheme_station() {
+  
+  $dbh = get_dbh();
+  $args = get_args();
+  $params = array();
+  
+  if(!$args[2]) {
+    return "scheme id not set";
+  }
+  
+  if(!$args[4]) {
+    return "station id not set";
+  }
+  
+  $station_ids = split(',',$args[4]);
+  $stations = array();
+  
+  foreach($station_ids as $idx => $station_id) {
+    if($station = Station::load($dbh, $args[2], $station_id)) {
+      $stations[] = $station;
+    }
+  }
 
+  return $stations;
+  
+  
+}
 
 
 /**
