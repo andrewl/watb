@@ -28,22 +28,22 @@ $tweet = NULL;
 foreach($current_state as $id => $station) {
   
   $alerts = array();
-  if((!$previous_state[$id] || $previous_state[$id]->bikes) && !$station->bikes) {
+  if((!isset($previous_state[$id]) || $previous_state[$id]->bikes) && !$station->bikes) {
     $alerts[] = "0 bikes";
   }
-  elseif(!$previous_state[$id]->bikes && $station->bikes) {
+  elseif(($previous_state[$id]->bikes === 0) && $station->bikes) {
     $alerts[] = "{$station->bikes} bikes";
   }
 
-  if((!$previous_state[$id] || $previous_state[$id]->stands) && !$station->stands) {
+  if((!isset($previous_state[$id]) || $previous_state[$id]->stands) && !$station->stands) {
     $alerts[] = "0 stands";
   }
-  elseif(!$previous_state[$id]->stands && $station->stands) {
-    $alerts[] = "{$station->bikes} stands";
+  elseif(($previous_state[$id]->stands === 0) && $station->stands) {
+    $alerts[] = "{$station->stands} stands";
   }
 
   if(count($alerts)) {
-    $tweet = "{$station->name} has " . join('and ', $alerts);
+    $tweet = "{$station->name} has " . join(' and ', $alerts);
     $ret = post_tweet(OAUTH_CONSUMER_KEY, OAUTH_CONSUMER_SECRET, $tweet, $access_token, $access_token_secret);
   }
   
