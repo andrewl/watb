@@ -29,17 +29,17 @@ foreach($current_state as $id => $station) {
   
   $alerts = array();
   if((!$previous_state[$id] || $previous_state[$id]->bikes) && !$station->bikes) {
-    $alerts = "0 bikes";
+    $alerts[] = "0 bikes";
   }
   elseif(!$previous_state[$id]->bikes && $station->bikes) {
-    $alerts = "{$station->bikes} bikes";
+    $alerts[] = "{$station->bikes} bikes";
   }
 
   if((!$previous_state[$id] || $previous_state[$id]->stands) && !$station->stands) {
-    $alerts = "0 stands";
+    $alerts[] = "0 stands";
   }
   elseif(!$previous_state[$id]->stands && $station->stands) {
-    $alerts = "{$station->bikes} stands";
+    $alerts[] = "{$station->bikes} stands";
   }
 
   if(count($alerts)) {
