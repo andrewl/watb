@@ -14,8 +14,8 @@ abstract class BikeHireFeeder
   function __construct(PDO $dbh) {
     $this->dbh = $dbh;
     $config = parse_ini_file(dirname(__FILE__).'/../conf/watb.ini', TRUE);
-    $this->config = array_merge( (isset($config[$this->name()]) ? $config[$this->name()] : array()),
-                         (isset($config['defaults']) ? $config['defaults'] : array()));
+    $this->config = array_merge( (isset($config['defaults']) ? $config['defaults'] : array()),
+    (isset($config[$this->name()]) ? $config[$this->name()] : array()));
   }
 
   /**
