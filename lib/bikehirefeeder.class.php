@@ -55,9 +55,12 @@ abstract class BikeHireFeeder
     $cache_max_age = isset($this->config['cache_max_age']) ? $this->config['cache_max_age'] : 300;
     $cache_dir = isset($this->config['cache_dir']) ? $this->config['cache_dir'] : '/tmp';
     
+    print "cache_max_age is {$cache_max_age}\n";
+    
     $cache_file = $cache_dir . "/" . md5($url) . '.feed_cache';
     
-    if(!file_exists($cache_file) || (filemtime($cache_file) + $cache_max_time) < time()) { 
+    if(!file_exists($cache_file) || (filemtime($cache_file) + $cache_max_age) < time()) { 
+      print "cache_file {$cache_file} is older than {$cache_max_age} seconds, or doesn't exist\n";      
       if(($contents = file_get_contents($url)) !== FALSE) {
         file_put_contents($cache_file, $contents);
       }
@@ -66,6 +69,7 @@ abstract class BikeHireFeeder
       }
     }
     else {
+      print "Retrieving from cache_file {$cache_file}\n";
       $contents = file_get_contents($cache_file);
     }
     
