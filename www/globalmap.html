@@ -1,0 +1,141 @@
+<html>
+<head>
+  <script src="http://openlayers.org/api/OpenLayers.js"></script>
+  <script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
+  <script src="http://api.maps.yahoo.com/ajaxymap?v=3.0&appid=al-bikes"></script>
+  <style>
+  body {
+    font-family: Georgia,"Bitstream Charter",serif;
+    font-size: 16px; 
+    background: white; 
+    padding-left: 20px;
+    padding-right: 20px;  
+    padding-top: 4px;
+    padding-bottom: 20px;    
+  }
+
+  h1 { 
+    font-family: "Helvetica Neue",Arial,Helvetica,"Nimbus Sans L",sans-serif;
+    color: black;
+    font-size: 30px;
+    margin-bottom: 0px;
+    margin-top: 0px;
+  }
+
+  h2 {
+    color: #888888;
+    font-family: "Helvetica Neue",Arial,Helvetica,"Nimbus Sans L",sans-serif;
+    font-size: 16px;  
+    margin-top: 0px;
+  }
+  
+  p {
+    margin-bottom: 6px;
+    margin-top: 6px;
+  }
+  
+  #map {
+    width: 800px;
+    height: 450px;
+    float: left;
+    margin-right: 20px;
+  }
+  #results {
+    float: right;
+    overflow: auto;
+  }
+  
+  #results div {
+    margin-bottom: 10px;
+  }
+  
+  #container {
+    width: 100%;
+    height: 450px;
+  }
+  </style>
+</head>
+<body>
+  <script>
+  var stations;
+  var map;
+  $(document).ready(function() {
+    map = new OpenLayers.Map('map', {maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)});
+
+    // var ol_wms = new OpenLayers.Layer.WMS( "World Map", 
+    //   "http://labs.metacarta.com/wms-c/Basic.py?", {layers: 'basic', format: 'image/png' } );
+      
+      var yahoo_streets = new OpenLayers.Layer.Yahoo(
+      					                "Yahoo Street",
+      					                {'sphericalMercator': true,
+      					                     maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34)}
+      					            );
+
+       var style = new OpenLayers.Style({
+           pointRadius: "${radius}",
+           fillColor: "#000099",
+           fillOpacity: 0.8,
+           strokeColor: "#0000ff",
+           strokeWidth: 2,
+           strokeOpacity: 0.8
+       }, {
+           context: {
+               radius: function(feature) {
+                   return Math.min(feature.attributes.count, 7) + 3;
+               }
+           }
+       });
+       
+       var stations = new OpenLayers.Layer.Vector("stations", {
+                  strategies: [
+                      new OpenLayers.Strategy.Cluster(),
+                      new OpenLayers.Strategy.Fixed()
+                  ],
+                  protocol: new OpenLayers.Protocol.HTTP({
+                      url: "/watb.php/scheme/all/stations.gjson",
+                      format: new OpenLayers.Format.GeoJSON({keepData: true})
+                  }),
+                  styleMap: new OpenLayers.StyleMap({
+                      "default": style,
+                      "select": {
+                          fillColor: "#8aeeef",
+                          strokeColor: "#32a8a9"
+                      }
+                  })
+              });
+              
+              var select = new OpenLayers.Control.SelectFeature(
+                                  stations, {hover: true}
+                              );
+                              map.addControl(select);
+                              select.activate();
+                              stations.events.on({"featureselected": display});
+
+              
+
+      
+       map.addLayers([yahoo_streets,stations]);
+       map.zoomTo(1);
+       // map.zoomToMaxExtent(); 
+
+  });
+  
+  function display(event) {
+      $('#results').html('<h2>Docking Stations: '+event.feature.cluster.length+'</h2>');
+      for(i = 0; i < event.feature.cluster.length; i++) {
+        $("#results").append("<div>Scheme: " + event.feature.cluster[i].attributes.scheme + " ID: " + event.feature.cluster[i].attributes.id + "<br/>Bikes: " + event.feature.cluster[i].attributes.bikes + " Stands: " + event.feature.cluster[i].attributes.stands + "</div>");
+      }
+  }
+  
+  </script>
+  <h1>Where Are The Bikes - Global Coverage Map</h1>
+  <p>This interactive map displays the locations of the docking stations on this hosted version of Where Are The Bikes. The docking stations are represented by blue circles and are dynamically clustered as you zoom in and out. Hover over any of the circles to reveal information about those docking stations.</p>
+  <p><small>This map was brought to you by <a href="http://andrewl.net" target="_other">Andrew Larcombe</a> and is powered by <a href="">Where Are The Bikes</a>, <a href="http://www.openlayers.org" target="_other">OpenLayers</a> and <a href="http://www.jquery.org" target="_other">jQuery</a></small></p>
+  <div id="container">
+  <div id="results">
+    <p>&lt;---- Hover over one of the blue circles</p>
+  </div>
+  <div id="map"/>
+  </div>
+</body>  
+</html>
