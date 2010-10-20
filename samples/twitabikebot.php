@@ -6,13 +6,8 @@
  *
  * @author Andrew Larcombe
  */
-
-
 //import the configuration
-require_once('./twitabikebot.conf.php');
-
-//set $post_tweet to TRUE to actually send tweets - FALSE to just log message to screen
-$post_tweet = TRUE;
+include(dirname(__FILE__) .'/twitabikebot.conf.php');
 
 
 //$application_state contains the last known state of the bot
@@ -28,15 +23,22 @@ else {
 }
 
 //retrieve all of the mentions
-logit("Retrieving mentions since '" . $application_state['last_run'] . "'");
+logit("Retrieving mentions since " . $application_state['last_run'] . "");
 $mentions = get_next_mentions(OAUTH_CONSUMER_KEY, OAUTH_CONSUMER_SECRET,
-                      $access_token, $access_token_secret);
+                      $access_token, $access_token_secret, FALSE);
                       
                                             
 foreach(json_decode($mentions[2]) as $mention) {
 
+  $created_time = strtotime($mention->created_at);
   //if we've processed this mention, forget it
-  if(strtotime($mention->created_at) < $application_state['last_run']); continue;
+  if( $created_time < $application_state['last_run']) {
+    logit("Ignoring '".$mention->text."' from " . $mention->user->screen_name ." - too old " . $created_time );
+    continue;
+  }
+  else {
+    logit("Processing '".$mention->text."' from " . $mention->user->screen_name ." - is new " . $created_time );
+  }
   
   //get the screen name of the user who sent the tweet
   $user = $mention->user->screen_name;

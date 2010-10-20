@@ -1,4 +1,13 @@
 <?php
+/**
+ * tweeter.php
+ * 
+ * 
+ *
+ * @author Andrew Larcombe
+ */
+
+
 require_once(dirname(__FILE__) . '/tweeter.conf.php');
 require_once(dirname(__FILE__) . '/oauth_helper.php');
 
@@ -17,10 +26,14 @@ if(file_exists($previous_state_file)) {
   $previous_state = unserialize(file_get_contents($previous_state_file));
 }
 
+print_r($previous_state);
+
 $current_state = array();
 foreach($stations as $station) {
   $current_state[$station->id] = $station;
 }
+
+print_r($current_state);
 
 //work out what message to tweet, if any
 $tweet = NULL;
@@ -28,17 +41,17 @@ $tweet = NULL;
 foreach($current_state as $id => $station) {
   
   $alerts = array();
-  if((!isset($previous_state[$id]) || $previous_state[$id]->bikes) && !$station->bikes) {
+  if((!isset($previous_state[$id]) || $previous_state[$id]->bikes) && $station->bikes == 0) {
     $alerts[] = "0 bikes";
   }
-  elseif(($previous_state[$id]->bikes === 0) && $station->bikes) {
+  elseif(($previous_state[$id]->bikes == 0) && $station->bikes > 0) {
     $alerts[] = "{$station->bikes} bikes";
   }
 
-  if((!isset($previous_state[$id]) || $previous_state[$id]->stands) && !$station->stands) {
+  if((!isset($previous_state[$id]) || $previous_state[$id]->stands) && $station->stands == 0) {
     $alerts[] = "0 stands";
   }
-  elseif(($previous_state[$id]->stands === 0) && $station->stands) {
+  elseif(($previous_state[$id]->stands == 0) && $station->stands > 0) { 
     $alerts[] = "{$station->stands} stands";
   }
 

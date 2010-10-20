@@ -147,11 +147,11 @@ class Station
    * @param string $params
    * An array of params used to limit the number of stations returned
    * filter = 2 (only stations with empty stands) or 1 (only stations with bikes available)
-   * TODO: bbox = x0,y0,x1,y1 (only stations within these bounds)
+   * bbox = x0,y0,x1,y1 (only stations within these bounds)
    * nearest = x0,y0 (order by distance from x0, y0)
    * max_dist = max distance in metres from nearest
    * count = number of stations to return
-   * TODO: page = used in conjunction with count. Returns n'th page of count results
+   * page = used in conjunction with count. Returns n'th page of count results
    * scheme = limit to those bikes in a particular scheme
    * @return void
    * @author Andrew Larcombe
@@ -179,11 +179,14 @@ class Station
           }
           else if($value == 1) {
             $where_clauses[] = 'bikes > 0';
-           }
+          }
           break;
 
         case 'bbox':
-          //not yet implemented
+          list($x0,$y0,$x1,$y1) = split(",",$value);
+          if(isset($x0) && isset($y0) && isset($x1) && isset($y1)) {
+            $where_clauses[] = "Within(location, GeomFromText(\"LINESTRING({$x0} {$y0},{$x0} {$y1},{$x1} {$y1},{$x1} {$y0},{$x0} {$y0})\"))";
+          }
           break;
 
         default:
@@ -194,23 +197,27 @@ class Station
     
     if(isset($params['nearest'])) {
       list($longitude, $latitude) = split(',' , $params['nearest']); 
-      $fields[] = "acos(cos(radians( Y(location) ))
+      
+      $distance_function = "(acos(cos(radians( Y(location) ))
         * cos(radians( {$latitude} ))
         * cos(radians( X(location) ) - radians( {$longitude} ))
         + sin(radians( Y(location) )) 
         * sin(radians( {$latitude} ))
-        ) * 6371000 AS dist";
+        ) * 6371000)";
+      
+      $fields[] = "$distance_function AS dist";
         
       $orders[] = 'dist asc';
       
       if(isset($params['max_dist'])) {
-        $where_clauses[] = 'dist < ' . (float)$params['max_dist'];
+        $where_clauses[] = "$distance_function < " . (float)$params['max_dist'];
       }
       
     }
     
     if(isset($params['count'])) {
-      if(isset($params['page'])) {
+      if(isset($params['page']) && $params['page'] > 1) {
+        $limits = 'LIMIT ' .  abs((int)$params['count']) . ' OFFSET ' . abs((int)$params['page']*(int)$params['count']);
       }
       else {
         $limits = 'LIMIT ' . abs((int)$params['count']);
@@ -222,7 +229,7 @@ class Station
       $sql .=  " order by " . (join(',',$orders));
     }
     $sql .= " " . $limits;
-
+    
     if(!$res = $dbh->query($sql)) {
       return "Failed to run sql '{$sql}'";
     }
@@ -241,57 +248,9 @@ class Station
     
   }
   
-  /**
-   * Locate the nearest $count stations from this latitude, longitude. Deprecated
-   *
-   * @param PDO $dbh 
-   * @param float $longitude 
-   * @param float $latitude 
-   * @param int $count 
-   * @return void
-   * @author Andrew Larcombe
-   */
-  static function find_nearest(PDO $dbh, $longitude, $latitude, $count = 1, $filter = 0) {
-    
-    switch ($filter) {
-      case 2:
-        $filter_clause = ' AND stands > 0';
-        break;
-
-      case 1:
-        $filter_clause = ' AND bikes > 0';
-        break;
-      
-      default:
-        $filter_clause = '';
-        break;
-    }
-    
-    $sql = "select scheme, id,
-                            acos( 
-                            cos(radians( Y(location) ))
-                            * cos(radians( {$latitude} ))
-                            * cos(radians( X(location) ) - radians( {$longitude} ))
-                            + sin(radians( Y(location) )) 
-                            * sin(radians( {$latitude} ))
-                            ) * 6371000 AS dist 
-          from stations WHERE 1=1 {$filter_clause} order by dist asc limit {$count}";
-                  
-    $res = $dbh->query($sql);
-    
-    $stations = array();
-    while($row = $res->fetch()) {
-      $station = Station::load($dbh, $row['scheme'], $row['id']);
-      $station->distance = $row['dist'];
-      $stations[] = $station;
-    }
-    
-    return $stations;
-
-  }
   
   /**
-   * Crappy logging function. Needs to be ripped out and replaced
+   * Crappy logging function. Needs to be ripped out and replaced, maybe with log4php
    *
    * @param string $message 
    * @return void

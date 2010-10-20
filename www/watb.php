@@ -14,7 +14,7 @@ $fn = NULL;
 if(preg_match('!scheme/.+?/stations/.+?!', $path)) {
   $fn = 'scheme_station';
 }
-else if(preg_match('!scheme/.+?/stations$!', $path)) {
+else if(preg_match('!scheme/.+?/stations[^/]*$!', $path)) {
   $fn = 'scheme_stations';
 }
 else if(preg_match('!scheme/.+?!', $path)) {
@@ -166,8 +166,32 @@ function output($var) {
     case 'xml':
     case 'html';
     case 'gjson':
+      $gjson = new stdClass();
+      $gjson->type = "FeatureCollection";
+      $gjson->features = array();
+      
+      foreach($var as $object) {
+        $feature = new stdClass();
+        $feature->type = "Feature";
+        $feature->geometry = new stdClass();
+        $feature->geometry->type = "Point";
+        $feature->geometry->coordinates = array();
+        $feature->geometry->coordinates[] = $object->longitude;
+        $feature->geometry->coordinates[] = $object->latitude;
+        $feature->properties = new stdClass();
+        $feature->properties->scheme = $object->scheme;
+        $feature->properties->id = $object->id;
+        $feature->properties->bikes = $object->bikes;
+        $feature->properties->stands = $object->stands;
+        $gjson->features[] = $feature;
+      }
+      header("Content-type: application/json");
+      print json_encode($gjson);
+      break;
+    
     case 'json':
     default:
+      header("Content-type: application/json");    
       print json_encode($var);
   }
 

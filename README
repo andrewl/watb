@@ -30,27 +30,28 @@ API CALLS
 /scheme/id/stations - returns information about all stations in scheme id. Set scheme id to 'all' for all stations. Takes the following query options to limit the number of statons
 * An array of params used to limit the number of stations returned
 * filter = 4 (only stations with no free stands) 3 (only stations with no bikes) 2 (only stations with empty stands) or 1 (only stations with bikes available)
-* TODO: bbox = x0,y0,x1,y1 (only stations within these bounds)
+* bbox = x0,y0,x1,y1 (only stations within these bounds)
 * nearest = x0,y0 (order by distance from x0, y0)
 * max_dist = max distance in metres from nearest
 * count = number of stations to return
-* TODO: page = used in conjunction with count. Returns n'th page of count results
+* page = used in conjunction with count. Returns n'th page of count results
 
 eg /scheme/all/stations?filter=2&nearest=0.1,51.2&max_dist=1000&count=5 will return a maximum of 5 nearest stations with empty stands within 1000 metres to 0.1 longitude, 51.2 latitude.
 
-TODO: /scheme/id/station/sid - return information about station sid in scheme id.
+/scheme/id/station/sid - return information about station sid in scheme id.
 
 
 
 TODO
 ====
-- Documentation
+- Documentation on architecture
 - Log4PHP for some (better) logging, error handling.
 - More output formats, xml, csv, yaml?
-- More schemes. Those based on Velib (eg Dublin) are straightforward. Others require a little more hackery.
+- More schemes. Always need more schemes. Those based on Velib (eg Dublin) are straightforward. Others require a little more hackery.
 - EC2 AMI?
 - Varnish VCL filtering on rounded lat-longs (would depend on density of stations?)
 - Parallel processing of schemes eg velib that require multiple http request.
+- Rewrite some of the code so it's less ugly - poss using a very, very, lightweight framework that provides routing etc.
 
 
 
