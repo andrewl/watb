@@ -52,7 +52,7 @@ TODO
 - Varnish VCL filtering on rounded lat-longs (would depend on density of stations?)
 - Parallel processing of schemes eg velib that require multiple http request.
 - Rewrite some of the code so it's less ugly - poss using a very, very, lightweight framework that provides routing etc.
-
+- The code was mostly written in a couple of evenings powered by cold+flu remedies. Could do with some work, maybe using an off-the-shelf lightweight framework.
 
 
 
