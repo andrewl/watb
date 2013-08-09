@@ -11,24 +11,28 @@
 
 
 require_once(dirname(__FILE__) . '/../db.inc.php');
-$dbh = new PDO("mysql:host=$host;dbname=$database", $username, $password);
-if(!$dbh) {
-  print "Failed to connect to database\n";  
-  return FALSE;
-}
-
 require_once(dirname(__FILE__) . '/../lib/bikehirefeeder.class.php');
 
+while(TRUE) {
 
-foreach(BikeHireFeeder::get_scheme_names() as $scheme_name => $scheme_description) {
-  $scheme = BikeHireFeeder::get_scheme($scheme_name, $dbh);
-  if($scheme) {
-    print "Processing {$scheme_name} ({$scheme_description})\n";  
-    $scheme->update();
+  foreach(BikeHireFeeder::get_scheme_names() as $scheme_name => $scheme_description) {
+    $scheme = BikeHireFeeder::get_scheme($scheme_name, $collection);
+    if($scheme) {
+      print "Processing {$scheme_name} ({$scheme_description})\n";  
+      $scheme->update();
+    }
+    else {
+      print "Failed to load {$scheme_name}\n";
+    }
   }
-  else {
-    print "Failed to load {$scheme_name}\n";
+
+  for($i = 0; $i < 10; $i++) {
+    print ".";
+    sleep(30);
   }
+
+  print "\n";
+
 }
 
 

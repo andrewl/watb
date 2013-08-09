@@ -39,6 +39,7 @@ class London extends BikeHireFeeder
   function update() {
     
     $contents = $this->load("http://web.barclayscyclehire.tfl.gov.uk/maps");
+    $time = time();
     
     if(!$contents) {
       return FALSE;
@@ -48,7 +49,7 @@ class London extends BikeHireFeeder
 
     $matches[1][1] = 0;
     while(preg_match($regex, $contents, $matches, PREG_OFFSET_CAPTURE, $matches[1][1])) {
-      $station = new Station($this->dbh);  
+      $station = new Station($this->db);  
       $station->scheme = call_user_func(array($this,'name'));
       $station->id = $matches[1][0];
       $station->name = $matches[2][0];
@@ -59,6 +60,7 @@ class London extends BikeHireFeeder
       $station->installed = $matches[7][0];
       $station->locked = $matches[8][0];
       $station->temporary = $matches[9][0];
+      $station->time = $time;
       $station->save();
     }
     

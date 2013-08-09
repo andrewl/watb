@@ -8,11 +8,11 @@ include(dirname(__FILE__) .'/../lib/station.class.php');
 */
 abstract class BikeHireFeeder
 {
-  var $dbh = NULL;
+  var $db = NULL;
   var $config = array();
     
-  function __construct(PDO $dbh) {
-    $this->dbh = $dbh;
+  function __construct(MongoCollection $db) {
+    $this->db = $db;
     $config = parse_ini_file(dirname(__FILE__).'/../conf/watb.ini', TRUE);
     $this->config = array_merge( (isset($config['defaults']) ? $config['defaults'] : array()),
     (isset($config[$this->name()]) ? $config[$this->name()] : array()));
@@ -44,35 +44,15 @@ abstract class BikeHireFeeder
   abstract function update();
   
   /**
-   * Loads content from the url, or from the cache if it is still in time.
+   * Loads content from the url
    *
    * @param string $url 
-   * @return the contents of the url or the cached file
+   * @return the contents of the url
    * @author Andrew Larcombe
    */
   function load($url) {
     
-    $cache_max_age = isset($this->config['cache_max_age']) ? $this->config['cache_max_age'] : 300;
-    $cache_dir = isset($this->config['cache_dir']) ? $this->config['cache_dir'] : '/tmp';
-    
-    print "cache_max_age is {$cache_max_age}\n";
-    
-    $cache_file = $cache_dir . "/" . md5($url) . '.feed_cache';
-    
-    if(!file_exists($cache_file) || (filemtime($cache_file) + $cache_max_age) < time()) { 
-      print "cache_file {$cache_file} is older than {$cache_max_age} seconds, or doesn't exist\n";      
-      if(($contents = file_get_contents($url)) !== FALSE) {
-        file_put_contents($cache_file, $contents);
-      }
-      else {
-        $contents = FALSE;
-      }
-    }
-    else {
-      print "Retrieving from cache_file {$cache_file}\n";
-      $contents = file_get_contents($cache_file);
-    }
-    
+    $contents = file_get_contents($url);
     return $contents;
     
   }
@@ -87,7 +67,7 @@ abstract class BikeHireFeeder
    */
   static function get_scheme($name, $dbh) {
     
-    //include all the scheme classe files
+    //include all the scheme class files
     foreach(glob(dirname(__FILE__) . '/../schemes/*.class.php') as $idx => $filename) {
       require_once($filename);
     }
