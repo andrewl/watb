@@ -4,6 +4,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 <script src='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.js'></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="/js/jquery.sparkline.min.js"></script>
 <link href='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.css' rel='stylesheet' />
 <!--[if lte IE 8]>
 <link href='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.ie.css' rel='stylesheet' >
@@ -22,23 +23,42 @@ margin:0px;
 </body>
 <script>
 var map = L.mapbox.map('map', 'examples.map-uci7ul8p')
-.setView([51.505, -0.09], 13);
+.fitBounds([[{{bbox[0]}}, {{bbox[1]}}], [{{bbox[2]}}, {{bbox[3]}}]]);
+
+var markers = [];
+
+function get_station_history() {
+
+  $.ajax({
+    'url': '/station_history/24',
+    'success': function(data) {
+      console.log(data);
+    } 
+  });
+
+
+}
 
 function refresh_docking_stations() {
+
+  $(markers).each(function(idx,marker) {
+    map.removeLayer(marker);
+  });
+
   $.ajax({
     'url': '/stations',
     'success': function(data) {
       draw_docking_stations(data);
     } 
   });
+
 }
 
 function format_information_popup(station) {
-  return 'Bikes: ' + station.bikes + '<br/>' + 'Docks: ' + station.docks + '<br/>Last updated: ' + station.update_time + '<br/><a href="https://maps.google.com/?cbll=' + station.location + '&cbp=12,20.09,,0,5&layer=c" target="_streetview">Street view</a>'
+  return 'Bikes: ' + station.bikes + '<span id="bikes_history"></span><br/>' + 'Docks: ' + station.docks + '<span id="docks_history"></span><br/>Last updated: ' + station.update_time + '<br/><a href="https://maps.google.com/?cbll=' + station.location + '&cbp=12,20.09,,0,5&layer=c" target="_streetview">Street view</a>'
 }
 
 function draw_docking_stations(docking_stations) {
-
 
   $(docking_stations.response.docs).each(function(idx,station) {
 
@@ -51,7 +71,7 @@ function draw_docking_stations(docking_stations) {
         color = '#03f';
       }
 
-      marker = L.mapbox.markerLayer({
+      markers.push(L.mapbox.markerLayer({
         // this feature is in the GeoJSON format: see geojson.org
         // for the full specification
         type: 'Feature',
@@ -64,25 +84,47 @@ function draw_docking_stations(docking_stations) {
         properties: {
         title: station.station_name,
         description: format_information_popup(station),
+        station_id: station.station_id,
         // one can customize markers by adding simplestyle properties
         // http://mapbox.com/developers/simplestyle/
         'marker-size': size,
         'marker-color': color,
         'marker-symbol': 'bicycle'
         }
-        });
+        }));
 
-      
+    });
+
+  $(markers).each(function(idx,marker) {
       marker.addTo(map);
-});
+      marker.on('click',function(e) {
+        station_id = e.layer.feature.properties['station_id'];
+        $.ajax({
+          'url': '/station_history/' + station_id,
+          'success': function(data) {
+            bikes = [];
+            docks = [];
+            $(data).each(function(idx,station_history) {
+              bikes.push(station_history.bikes);
+              docks.push(station_history.docks);
+            });
+            spark_options = {type: 'line', width: 205, height: 50};
+            $('#bikes_history').sparkline(bikes, spark_options);
+            $('#docks_history').sparkline(docks, spark_options);
+          } 
+       });
+     });
+  });
+
 }
+
+console.log({{bbox[0]}});
 
 refresh_docking_stations();
 
 map.on('viewreset', function(e) {
-  refresh_docking_stations();
+    refresh_docking_stations();
 });
-
 
 </script>
 </html>
