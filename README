@@ -1,3 +1,5 @@
+THIS IS OUTDATED. Now running on a combination of Silex, jQuery, Leaflet and Solr.
+
 Where Are The Bikes?
 ====================
 ...is a general purpose, lightweight framework for gathering and searching docking stations for bicycle hire schemes. Rather than duplicate code for each scheme around the world this can be used to easily extend to any new schemes that come online. 

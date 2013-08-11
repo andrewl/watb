@@ -26,24 +26,9 @@ var map = L.mapbox.map('map', 'examples.map-uci7ul8p')
 .fitBounds([[{{bbox[0]}}, {{bbox[1]}}], [{{bbox[2]}}, {{bbox[3]}}]]);
 
 var markers = [];
-
-function get_station_history() {
-
-  $.ajax({
-    'url': '/station_history/24',
-    'success': function(data) {
-      console.log(data);
-    } 
-  });
-
-
-}
+var update_time = 0;
 
 function refresh_docking_stations() {
-
-  $(markers).each(function(idx,marker) {
-    map.removeLayer(marker);
-  });
 
   $.ajax({
     'url': '/stations',
@@ -59,6 +44,17 @@ function format_information_popup(station) {
 }
 
 function draw_docking_stations(docking_stations) {
+
+  if(docking_stations.response.docs[0].update_time = update_time) {
+    console.log('Not updating');
+    return;
+  }
+
+  $(markers).each(function(idx,marker) {
+    map.removeLayer(marker);
+  });
+
+  update_time = docking_stations.response.docs[0].update_time;
 
   $(docking_stations.response.docs).each(function(idx,station) {
 
