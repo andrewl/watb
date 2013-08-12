@@ -25,13 +25,13 @@ $app->get('/{type}/{bbox}', function($type, $bbox) use ($app) {
   $bbox_coords = explode(',', $bbox);
   
   if(count($bbox_coords)!=4) {
-    $bbox_coords = explode(',', '51.52,0.01,51.48,-0.19');
+    $bbox_coords = explode(',', '51.503,-0.161,51.521,-0.05');
   }
 
   $vars = array('criteria' => $type, 'bbox' => $bbox_coords);
 
   return $app['twig']->render('index.twig', $vars);
 
-})->value('type', 'bikes')->value('bbox','51.52,0.01,51.48,-0.19');
+})->value('type', 'bikes')->value('bbox','51.503,-0.161,51.521,-0.05');
 
 $app->run();
