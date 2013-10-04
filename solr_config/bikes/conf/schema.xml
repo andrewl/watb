@@ -107,12 +107,17 @@
    -->
 
    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="scheme" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="station_name" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="station_id" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="location"  type="location_rpt"  indexed="true" stored="true"  multiValued="false" /> 
    <field name="bikes" type="int" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="docks" type="int" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="update_time" type="tdate" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="day" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="time_period" type="int" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="weather_description" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
+   <field name="precipitation" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
    <field name="temperature" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
    <field name="wind_speed" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
 
