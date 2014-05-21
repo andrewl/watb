@@ -1,2 +1,2 @@
 #!/bin/bash
-solr /Users/andrew/dev/watb/solr_config
+/usr/local/bin/solr /home/andrew/watb/solr_config
