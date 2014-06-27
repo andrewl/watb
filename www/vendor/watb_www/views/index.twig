@@ -5,6 +5,7 @@
 <script src='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.js'></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="/js/jquery.sparkline.min.js"></script>
+<script src="/js/geohash.js"></script>
 <link href='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.css' rel='stylesheet' />
 <!--[if lte IE 8]>
 <link href='//api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.ie.css' rel='stylesheet' >
@@ -27,17 +28,20 @@ var map = L.mapbox.map('map', 'andrewl.map-72xepwqp')
 .fitBounds([[{{bbox[0]}}, {{bbox[1]}}], [{{bbox[2]}}, {{bbox[3]}}]]);
 
 var markers = [];
-var update_time = 0;
 
 function refresh_docking_stations() {
 
-  $.ajax({
-      'url': '/stations',
-      'success': function(data) {
-      draw_docking_stations(data);
-      } 
-      });
+  hash_level = 3;
+  if (map.getZoom() > 12) {
+    hash_level = 0;
+  }
 
+  $.ajax({
+    'url': '/stations/' + map.getBounds().toBBoxString() + '/' + hash_level,
+    'success': function(data) {
+      draw_docking_stations(data);
+    } 
+  });
 }
 
 function format_information_popup(station) {
@@ -46,76 +50,110 @@ function format_information_popup(station) {
 
 function draw_docking_stations(docking_stations) {
 
-  if(docking_stations.response.docs[0].update_time = update_time) {
-    console.log('Not updating');
-    return;
-  }
-
   $(markers).each(function(idx,marker) {
+      console.log('removing marker');
       map.removeLayer(marker);
+  });
+
+
+  if(docking_stations.hashes) {
+    size = 'medium';
+    color = '#03f';
+    //@todo - change to array
+    for(var hash in docking_stations.hashes) {
+      ll = decodeGeoHash(hash);
+      coords = [ll.longitude[0], ll.latitude[0]];
+      console.log(ll.longitude[0]);
+      console.log(coords);
+      markers.push(L.mapbox.markerLayer({
+        // this feature is in the GeoJSON format: see geojson.org
+        // for the full specification
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          // coordinates here are in longitude, latitude order because
+          // x, y is the standard for GeoJSON and many formats
+          coordinates: coords
+        },
+        properties: {
+          // one can customize markers by adding simplestyle properties
+          // http://mapbox.com/developers/simplestyle/
+          'geohash': hash,
+          'marker-size': size,
+          'marker-color': color,
+          'marker-symbol': 'bicycle'
+          }
+      }));
+    };
+    
+    $(markers).each(function(idx,marker) {
+      marker.addTo(map);
+      marker.on('click',function(e) {
+        console.log(e.layer.feature);
+        map.setZoom(map.getZoom()+2);
       });
-
-  update_time = docking_stations.response.docs[0].update_time;
-
-  $(docking_stations.response.docs).each(function(idx,station) {
+    });
+  }
+  else {
+    $(docking_stations.response.docs).each(function(idx,station) {
 
       if(station.{{criteria}} < 5) {
-      size = 'small';
-      color = '#fff';
+        size = 'small';
+        color = '#fff';
       }
       else {
-      size = 'medium';
-      color = '#03f';
+        size = 'medium';
+        color = '#03f';
       }
 
       markers.push(L.mapbox.markerLayer({
-          // this feature is in the GeoJSON format: see geojson.org
-          // for the full specification
-type: 'Feature',
-geometry: {
-type: 'Point',
-// coordinates here are in longitude, latitude order because
-// x, y is the standard for GeoJSON and many formats
-coordinates: station.location.split(',').reverse()
-},
-properties: {
-title: station.station_name,
-description: format_information_popup(station),
-station_id: station.station_id,
-// one can customize markers by adding simplestyle properties
-// http://mapbox.com/developers/simplestyle/
-'marker-size': size,
-'marker-color': color,
-'marker-symbol': 'bicycle'
-}
-}));
+        // this feature is in the GeoJSON format: see geojson.org
+        // for the full specification
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          // coordinates here are in longitude, latitude order because
+          // x, y is the standard for GeoJSON and many formats
+          coordinates: station.location.split(',').reverse()
+        },
+        properties: {
+          title: station.station_name,
+          description: format_information_popup(station),
+          station_id: station.station_id,
+          // one can customize markers by adding simplestyle properties
+          // http://mapbox.com/developers/simplestyle/
+          'marker-size': size,
+          'marker-color': color,
+          'marker-symbol': 'bicycle'
+          }
+      }));
+    });
 
-});
-
-$(markers).each(function(idx,marker) {
-    marker.addTo(map);
-    marker.on('click',function(e) {
-      station_id = e.layer.feature.properties['station_id'];
-      $.ajax({
-        'url': '/station_history/' + station_id,
-        'success': function(data) {
-        bikes = [];
-        docks = [];
-        $(data).each(function(idx,station_history) {
-          bikes.push(station_history.bikes);
-          docks.push(station_history.docks);
-          });
-        spark_options = {type: 'line', width: 205, height: 50};
-        $('#bikes_history').sparkline(bikes, spark_options);
-        $('#docks_history').sparkline(docks, spark_options);
-        } 
+    $(markers).each(function(idx,marker) {
+      marker.addTo(map);
+      marker.on('click',function(e) {
+        station_id = e.layer.feature.properties['station_id'];
+        $.ajax({
+          'url': '/station_history/' + station_id,
+          'success': function(data) {
+            bikes = [];
+            docks = [];
+            $(data).each(function(idx,station_history) {
+              bikes.push(station_history.bikes);
+              docks.push(station_history.docks);
+            });
+            spark_options = {type: 'line', width: 205, height: 50};
+            $('#bikes_history').sparkline(bikes, spark_options);
+            $('#docks_history').sparkline(docks, spark_options);
+          } 
         });
       });
     });
 
+    console.log({{bbox[0]}});
+    
+  }
 }
-
-console.log({{bbox[0]}});
 
 refresh_docking_stations();
 

@@ -3,25 +3,67 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cdd737916bab69a545a79d706f059530",
+    "hash": "116ff953331e41a4f00c42e725c67db1",
     "packages": [
         {
-            "name": "guzzle/guzzle",
+            "name": "camcima/php-geohash",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "45fbe6ef8d34b2b0b212217b092450da17254443"
+                "url": "https://github.com/camcima/php-geohash.git",
+                "reference": "bbc889e0ab8517ec5805a5e247119080c5707cf5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/45fbe6ef8d34b2b0b212217b092450da17254443",
-                "reference": "45fbe6ef8d34b2b0b212217b092450da17254443",
+                "url": "https://api.github.com/repos/camcima/php-geohash/zipball/bbc889e0ab8517ec5805a5e247119080c5707cf5",
+                "reference": "bbc889e0ab8517ec5805a5e247119080c5707cf5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Camcima": "Package"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carlos Cima",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Refactored GeoHash package",
+            "homepage": "https://github.com/camcima/php-geohash",
+            "keywords": [
+                "composer",
+                "geohash",
+                "php"
+            ],
+            "time": "2014-02-05 17:25:06"
+        },
+        {
+            "name": "guzzle/guzzle",
+            "version": "v3.7.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/guzzle/guzzle.git",
+                "reference": "b170b028c6bb5799640e46c8803015b0f9a45ed9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b170b028c6bb5799640e46c8803015b0f9a45ed9",
+                "reference": "b170b028c6bb5799640e46c8803015b0f9a45ed9",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
-                "php": ">=5.3.2",
+                "php": ">=5.3.3",
                 "symfony/event-dispatcher": ">=2.1"
             },
             "replace": {
@@ -95,7 +137,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2013-08-07 03:07:47"
+            "time": "2013-10-02 20:47:00"
         },
         {
             "name": "solarium/solarium",
@@ -103,19 +145,28 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/basdenooijer/solarium.git",
-                "reference": "c2eb9af5dc414282f608fc1133a266de30f9f081"
+                "reference": "960d1549bfb6f88c2d34dbd741def37626f83850"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/basdenooijer/solarium/zipball/c2eb9af5dc414282f608fc1133a266de30f9f081",
-                "reference": "c2eb9af5dc414282f608fc1133a266de30f9f081",
+                "url": "https://api.github.com/repos/basdenooijer/solarium/zipball/960d1549bfb6f88c2d34dbd741def37626f83850",
+                "reference": "960d1549bfb6f88c2d34dbd741def37626f83850",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.2",
                 "symfony/event-dispatcher": "~2.1"
             },
+            "require-dev": {
+                "phpunit/phpunit": "~3.7",
+                "squizlabs/php_codesniffer": "~1.4"
+            },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-develop": "3.3.x-dev"
+                }
+            },
             "autoload": {
                 "psr-0": {
                     "Solarium\\": "library/"
@@ -138,28 +189,31 @@
                 "search",
                 "solr"
             ],
-            "time": "2013-07-26 08:48:22"
+            "time": "2014-04-20 05:23:59"
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.3.3",
+            "version": "v2.5.0",
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/EventDispatcher.git",
-                "reference": "v2.3.3"
+                "reference": "cb62ec8dd05893fc8e4f0e6e21e326e1fc731fe8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/v2.3.3",
-                "reference": "v2.3.3",
+                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/cb62ec8dd05893fc8e4f0e6e21e326e1fc731fe8",
+                "reference": "cb62ec8dd05893fc8e4f0e6e21e326e1fc731fe8",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "symfony/dependency-injection": "~2.0"
+                "psr/log": "~1.0",
+                "symfony/config": "~2.0",
+                "symfony/dependency-injection": "~2.0",
+                "symfony/stopwatch": "~2.2"
             },
             "suggest": {
                 "symfony/dependency-injection": "",
@@ -168,7 +222,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "2.5-dev"
                 }
             },
             "autoload": {
@@ -183,7 +237,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Symfony Community",
@@ -192,7 +248,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "http://symfony.com",
-            "time": "2013-07-21 12:12:18"
+            "time": "2014-04-29 10:13:57"
         }
     ],
     "packages-dev": [
@@ -204,7 +260,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "guzzle/guzzle": 20,
-        "solarium/solarium": 20
+        "solarium/solarium": 20,
+        "camcima/php-geohash": 20
     },
     "platform": [
 

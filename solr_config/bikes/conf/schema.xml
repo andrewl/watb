@@ -114,12 +114,18 @@
    <field name="bikes" type="int" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="docks" type="int" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="update_time" type="tdate" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="loader_time" type="tdate" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="day" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="time_period" type="int" indexed="true" stored="true" required="true" multiValued="false" /> 
    <field name="weather_description" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
    <field name="precipitation" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
    <field name="temperature" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
    <field name="wind_speed" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+   <field name="geohash_1" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="geohash_2" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="geohash_3" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="geohash_4" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
+   <field name="geohash_5" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
 
    <field name="_version_" type="long" indexed="true" stored="true"/>
 
